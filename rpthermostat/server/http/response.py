@@ -1,14 +1,8 @@
 import io
 import socket
 
-from .utils import Version
-from ..utils import print_exception
+from .utils import Version, safe_send
 from ..enums import Code, Header, MIMEType, Marker
-
-try:
-    from typing import Callable
-except ImportError:
-    pass
 
 
 class Response:
@@ -17,12 +11,12 @@ class Response:
         version: Version,
         status_code: Code,
         headers: dict[Header, str],
-        body: str | Callable[[], str],
+        body: str,
     ):
         self.version: Version = version
         self.status_code: Code = status_code
         self.headers: dict[Header, str] = headers
-        self.body: str | Callable[[], str] = body
+        self.body: str = body
 
     def __repr__(self) -> str:
         r = f"Response <HTTP/{self.version.major}.{self.version.minor} {Code.get_value(self.status_code)} {self.status_code}>\n"
@@ -34,18 +28,22 @@ class Response:
 
     @classmethod
     def empty(cls, status_code: Code) -> "Response":
-        return Response(Version(1, 1), status_code, {}, "")
+        return Response(Version(1, 1), status_code, {Header.ContentLength: "0"}, "")
 
     @classmethod
-    def OK(cls, body: str | Callable[[], str], mime_type: MIMEType) -> "Response":
+    def OK(cls, body: str, mime_type: MIMEType) -> "Response":
+        headers: dict[Header, str] = {
+            Header.TransferEncoding: Header.TransferEncodingV.Chunked,
+            Header.Connection: Header.ConnectionV.KeepAlive,
+        }
+
+        if mime_type != MIMEType.NONE:
+            headers[Header.ContentType] = mime_type
+
         return Response(
             Version(1, 1),
             Code.s200,
-            {
-                Header.TransferEncoding: Header.TransferEncodingV.Chunked,
-                Header.Connection: Header.ConnectionV.KeepAlive,
-                Header.ContentType: mime_type,
-            },
+            headers,
             body,
         )
 
@@ -63,27 +61,15 @@ class Response:
 
     def send(self, s: socket.socket) -> None:
         """Send response over a socket."""
-        if callable(self.body):
-            try:
-                res = self.body()
-                data, has_body = io.BytesIO(res.encode("utf-8")), len(res)
+        has_body = bool(len(self.body))
+        if not has_body:
+            data = io.BytesIO()
 
-            except Exception as err:
-                Response.InternalServerError(print_exception(err), MIMEType.html).send(
-                    s
-                )
-                return
+        elif self.body.startswith(Marker.FILE):
+            data = open(self.body[6:], "rb")
 
         else:
-            has_body = bool(len(self.body))
-            if not has_body:
-                data = io.BytesIO()
-
-            elif self.body.startswith(Marker.FILE):
-                data = open(self.body[6:], "rb")
-
-            else:
-                data = io.BytesIO(self.body.encode("utf-8"))
+            data = io.BytesIO(self.body.encode("utf-8"))
 
         resp = f"HTTP/{self.version.major}.{self.version.minor} {Code.get_value(self.status_code)} {self.status_code}\r\n"
 
@@ -100,14 +86,14 @@ class Response:
                     chunk = data.read(1024)
                     while chunk:
                         # Send the size of the chunk in hexadecimal, followed by the chunk itself
-                        _ = s.send(
-                            f"{len(chunk):X}\r\n".encode("utf-8") + chunk + b"\r\n"
+                        _ = safe_send(
+                            s, f"{len(chunk):X}\r\n".encode("utf-8") + chunk + b"\r\n"
                         )
 
                         chunk = data.read(1024)
 
-                    _ = s.send(
-                        b"0\r\n\r\n"
+                    _ = safe_send(
+                        s, b"0\r\n\r\n"
                     )  # Send the zero-length chunk to indicate end
 
                 else:
@@ -115,7 +101,7 @@ class Response:
                     assert self.headers.get(Header.ContentLength) is not None, (
                         "No Content-Length defined"
                     )
-                    _ = s.send(data.read())
+                    _ = safe_send(s, data.read())
 
         finally:
             data.close()

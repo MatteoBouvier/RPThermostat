@@ -7,6 +7,7 @@ except ImportError:
 
 
 class MIMEType(StrEnum):
+    NONE = ""
     html = "text/html; charset=utf-8"
     css = "text/css; charset=utf-8"
     js = "text/javascript; charset=utf-8"
@@ -36,10 +37,11 @@ class Marker(StrEnum):
 
 class Method(StrEnum):
     GET = "GET"
+    POST = "POST"
 
     @staticmethod
-    def all() -> tuple["Method"]:
-        return (Method.GET,)
+    def all() -> tuple["Method", ...]:
+        return (Method.GET, Method.POST)
 
 
 class Header(StrEnum):

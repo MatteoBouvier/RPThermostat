@@ -2,7 +2,9 @@ import os
 import socket
 import select
 
-from .enums import MIMEType, Code, Marker
+from .utils import print_exception
+
+from .enums import MIMEType, Code, Marker, Method
 from .http import Request, Response, get_media_types
 
 try:
@@ -20,6 +22,7 @@ class Nice:
         self.listening_conn: socket.socket = socket.socket(
             socket.AF_INET, socket.SOCK_STREAM
         )
+        self.listening_conn.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.listening_conn.bind(("", port))
         self.listening_conn.listen(5)
         self.listening_conn.setblocking(False)
@@ -34,13 +37,24 @@ class Nice:
         self.sockets: set[socket.socket] = set()
         self.sockets.add(self.listening_conn)
 
-        self.routes: dict[str, tuple[MIMEType, Callable[[], str]]] = {}
+        self.routes: dict[Method, dict[str, tuple[MIMEType, Callable[..., str]]]] = {
+            Method.GET: {},
+            Method.POST: {},
+        }
 
-    def route(
+    def get(
         self, path: str, mime_type: MIMEType = MIMEType.html
     ) -> Callable[[Callable[[], str]], None]:
         def inner(callback: Callable[[], str]) -> None:
-            self.routes[path] = (mime_type, callback)
+            self.routes[Method.GET][path] = (mime_type, callback)
+
+        return inner
+
+    def post(
+        self, path: str, mime_type: MIMEType = MIMEType.NONE
+    ) -> Callable[[Callable[[Request], str]], None]:
+        def inner(callback: Callable[[Request], str]) -> None:
+            self.routes[Method.POST][path] = (mime_type, callback)
 
         return inner
 
@@ -108,7 +122,36 @@ class Nice:
 
             if mask & select.POLLOUT:
                 if request.method == "GET":
-                    response = self.get_media(request)
+                    if request.path in self.routes[Method.GET]:
+                        mime_type, callback = self.routes[Method.GET][request.path]
+
+                        try:
+                            body = callback()
+                        except Exception as err:
+                            response = Response.InternalServerError(
+                                print_exception(err), MIMEType.html
+                            )
+                        else:
+                            response = Response.OK(body, mime_type)
+
+                    else:
+                        response = self.get_media(request)
+
+                elif request.method == "POST":
+                    if request.path in self.routes[Method.POST]:
+                        mime_type, callback = self.routes[Method.POST][request.path]
+
+                        try:
+                            body = callback(request)
+                        except Exception as err:
+                            response = Response.InternalServerError(
+                                print_exception(err), MIMEType.html
+                            )
+                        else:
+                            response = Response.OK(body or "", mime_type)
+
+                    else:
+                        response = Response.empty(Code.e404)
 
                 else:
                     response = Response.empty(Code.e405)
@@ -116,10 +159,6 @@ class Nice:
                 response.send(conn)
 
     def get_media(self, request: Request) -> Response:
-        if request.path in self.routes:
-            mime_type, body = self.routes[request.path]
-            return Response.OK(body, mime_type)
-
         requested_file_name = request.path[1:]
         extension = request.path.split(".")[1]
         mime_type = MIMEType.match(extension)

@@ -1,3 +1,5 @@
+import socket
+
 try:
     from typing import NamedTuple
 
@@ -26,6 +28,14 @@ def is_valid(s: str, valid: tuple[str, ...]) -> bool:
 def get_media_types(MIME_type: str) -> list[str]:
     types = [t.split(";q=") if ";" in t else (t, 1) for t in MIME_type.split(",")]
     return [t for (t, _) in sorted(types, key=lambda x: float(x[1]))]
+
+
+def safe_send(s: socket.socket, data: bytes) -> int:
+    try:
+        return s.send(data)
+
+    except BrokenPipeError:
+        return -1
 
 
 def html_document(title: str, *, head: str = "", body: str = "") -> str:
