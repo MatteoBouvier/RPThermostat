@@ -25,7 +25,7 @@ function build_temp_display(temp) {
     
 }
 
-const request = new Request("http://192.168.1.136/api/temp");
+const request = new Request(window.location.origin + "/api/temp");
 
 fetch(request)
   .then((response) => response.json())

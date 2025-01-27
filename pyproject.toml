@@ -1,0 +1,6 @@
+[tool.pyright]
+reportAny = false
+reportExplicitAny = false
+reportDeprecated = false
+reportImplicitOverride = false
+reportUntypedNamedTuple = false
