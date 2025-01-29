@@ -6,21 +6,15 @@ import { build_temp_display } from "./temp_display.js";
  * @param {string} body
  * @param {Event} event
  */
-function post(url, body, event, callback) {
-    try {
-        fetch(url, {
-            method: "POST",
-            body: body,
-            headers: {
-                "Content-type": "application/json; charset=UTF-8",
-            },
-        })
-            .then((response) => response.json())
-            .then((data) => callback(data, event));
-    } catch (err) {
-        event.preventDefault();
-        console.log(err);
-    }
+function post(url, body) {
+    return fetch(url, {
+        method: "POST",
+        body: body,
+        headers: {
+            "Content-type": "application/json; charset=UTF-8",
+        },
+    })
+        .then((response) => response.json());
 }
 
 const SERVER_URL = globalThis.location.origin;
@@ -83,13 +77,11 @@ main_switch.addEventListener("change", (event) => {
         JSON.stringify({
             active: event.currentTarget.checked,
         }),
-        event,
-        (data, event) => {
-            if (data.active != event.currentTarget.checked) {
-                event.preventDefault();
-            }
-        },
-    );
+    ).then((data) => {
+        if (data.active != main_switch.checked) {
+            event.preventDefault();
+        }
+    });
 });
 
 input_day_min.addEventListener("change", (event) => {
@@ -100,13 +92,11 @@ input_day_min.addEventListener("change", (event) => {
         post(
             SERVER_URL + "/api/temp",
             JSON.stringify({ day: { min: event.currentTarget.value } }),
-            event,
-            (data, event) => {
-                if (data.day.min == event.currentTarget.checked) {
-                    event.currentTarget.classList.add("is-valid");
-                }
-            },
-        );
+        ).then((data) => {
+            if (data.day.min == input_day_min.checked) {
+                input_day_min.classList.add("is-valid");
+            }
+        });
     }
 });
 
@@ -118,13 +108,11 @@ input_night_min.addEventListener("change", (event) => {
         post(
             SERVER_URL + "/api/temp",
             JSON.stringify({ night: { min: event.currentTarget.value } }),
-            event,
-            (data, event) => {
-                if (data.night.min == event.currentTarget.checked) {
-                    event.currentTarget.classList.add("is-valid");
-                }
-            },
-        );
+        ).then((data) => {
+            if (data.night.min == input_night_min.checked) {
+                input_night_min.classList.add("is-valid");
+            }
+        });
     }
 });
 
@@ -136,13 +124,11 @@ input_day_max.addEventListener("change", (event) => {
         post(
             SERVER_URL + "/api/temp",
             JSON.stringify({ day: { max: event.currentTarget.value } }),
-            event,
-            (data, event) => {
-                if (data.day.max == event.currentTarget.checked) {
-                    event.currentTarget.classList.add("is-valid");
-                }
-            },
-        );
+        ).then((data) => {
+            if (data.day.max == input_day_max.checked) {
+                input_day_max.classList.add("is-valid");
+            }
+        });
     }
 });
 
@@ -154,13 +140,11 @@ input_night_max.addEventListener("change", (event) => {
         post(
             SERVER_URL + "/api/temp",
             JSON.stringify({ night: { max: event.currentTarget.value } }),
-            event,
-            (data, event) => {
-                if (data.night.min == event.currentTarget.checked) {
-                    event.currentTarget.classList.add("is-valid");
-                }
-            },
-        );
+        ).then((data) => {
+            if (data.night.min == input_night_max.checked) {
+                input_night_max.classList.add("is-valid");
+            }
+        });
     }
 });
 
