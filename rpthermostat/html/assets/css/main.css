@@ -41,6 +41,72 @@ input[type="number"] {
     background-color: var(--red);
 }
 
+@keyframes temp_rising_anim {
+    0% {
+        transform: translateX(0);
+        border-left-color: var(--dark-grey);
+    }
+
+    70% {
+        border-left-color: var(--green);
+    }
+
+    100% {
+        transform: translateX(7px);
+        border-left-color: transparent;
+    }
+}
+
+.temp_graph_rising::after {
+    content: "";
+    display: block;
+    position: relative;
+    top: 0.15em;
+    left: calc(100% + 13px);
+    z-index: 1;
+
+    width: 0;
+    height: 0;
+    border-left: 0.55em solid red;
+    border-top: 0.65em solid transparent;
+    border-bottom: 0.65em solid transparent;
+
+    animation: temp_rising_anim 1s cubic-bezier(0.3, 0, 0.7, 1) infinite;
+}
+
+@keyframes temp_decreasing_anim {
+    0% {
+        transform: translateX(0);
+        border-right-color: var(--green);
+    }
+
+    70% {
+        border-right-color: var(--dark-grey);
+    }
+
+    100% {
+        transform: translateX(-7px);
+        border-right-color: transparent;
+    }
+}
+
+.temp_graph_decreasing::after {
+    content: "";
+    display: block;
+    position: relative;
+    top: 0.15em;
+    left: calc(100% - 3px);
+    z-index: 1;
+
+    width: 0;
+    height: 0;
+    border-right: 0.55em solid red;
+    border-top: 0.65em solid transparent;
+    border-bottom: 0.65em solid transparent;
+
+    animation: temp_decreasing_anim 1s cubic-bezier(0.3, 0, 0.7, 1) infinite;
+}
+
 .sliders_control {
     position: relative;
     min-height: 25px;

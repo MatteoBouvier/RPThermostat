@@ -34,7 +34,7 @@ def safe_send(s: socket.socket, data: bytes) -> int:
     try:
         return s.send(data)
 
-    except BrokenPipeError:
+    except (BrokenPipeError, ConnectionResetError):
         return -1
 
 

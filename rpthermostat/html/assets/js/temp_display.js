@@ -49,14 +49,28 @@ export function build_temp_display(temp) {
         const after = temp.max - temp.current;
 
         const total = 2 * padding + before + after;
+        const arrow_class = temp.rising
+            ? "temp_graph_rising"
+            : "temp_graph_decreasing";
 
         document.getElementById("temp_display").innerHTML =
             `<div class="row" style="height: 2.1em; background-color: var(--grey); align-items: center">
                 <div id="temp_graph_before" style="position: relative; height: 1.5em; background-color:${COLOR_BEFORE}; flex:0.25;"></div>
-                <div id="temp_graph_current" style="position: relative; height: 1.5em; padding-right: 0.5em; background-color:var(--green); color:var(--dark-grey); text-align: right; flex:${
+                <div id="temp_graph_current" class=${arrow_class} style="position: relative; 
+                                                                              height: 1.5em; 
+                                                                              padding-right: 0.5em; 
+                                                                              background-color:var(--green); 
+                                                                              color:var(--dark-grey); 
+                                                                              text-align: right; 
+                                                                              flex:${
                 before / total
             };">${left}</div>
-                <div id="temp_graph_current2" style="position: relative; height: 1.5em; padding-left: 0.5em; background-color:var(--dark-grey); color:var(--green); flex:${
+                <div id="temp_graph_current2" style="position: relative; 
+                                                     height: 1.5em; 
+                                                     padding-left: 1em; 
+                                                     background-color:var(--dark-grey); 
+                                                     color:var(--green); 
+                                                     flex:${
                 after / total
             };">${right}</div>
                 <div id="temp_graph_after" style="position: relative; height: 1.5em; flex:0.25;"></div>

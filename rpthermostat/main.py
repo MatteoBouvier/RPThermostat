@@ -90,15 +90,13 @@ def api_get_temp() -> str:
     weekday = now.strftime("%A")
 
     start, end = data["config"]["days"][weekday]
+    extras = dict(current=data["temp"]["current"], rising=data["temp"]["rising"])
+
     if start * 60 > now.hour * 60 + now.minute > end * 60:
-        return json.dumps(
-            data["config"]["minmax"]["day"] | dict(current=data["temp"]["current"])
-        )
+        return json.dumps(data["config"]["minmax"]["day"] | extras)
 
     else:
-        return json.dumps(
-            data["config"]["minmax"]["night"] | dict(current=data["temp"]["current"])
-        )
+        return json.dumps(data["config"]["minmax"]["night"] | extras)
 
 
 @app.post("/api/temp", MIMEType.json)
