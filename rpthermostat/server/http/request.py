@@ -58,11 +58,17 @@ class Request:
         if not is_valid(method, Method.all()):
             return None
 
-        return Request(method, path, get_version(version), parsed_headers, body)
+        return Request(
+            method, path.rstrip("/"), get_version(version), parsed_headers, body
+        )
 
     @staticmethod
     def get(s: socket.socket) -> Union["Request", None]:
-        data = s.recv(1024).decode("utf-8")
+        try:
+            data = s.recv(1024).decode("utf-8")
+        except ConnectionResetError:
+            return None
+
         if not data:
             return None
 

@@ -1,4 +1,5 @@
 import os
+import re
 import socket
 import select
 
@@ -11,6 +12,9 @@ try:
     from typing import Callable
 except ImportError:
     pass
+
+
+BRACKETS = re.compile("[{}]")
 
 
 class Nice:
@@ -37,16 +41,26 @@ class Nice:
         self.sockets: set[socket.socket] = set()
         self.sockets.add(self.listening_conn)
 
-        self.routes: dict[Method, dict[str, tuple[MIMEType, Callable[..., str]]]] = {
+        self.routes: dict[
+            Method,
+            dict[tuple[tuple[str, ...], ...], tuple[MIMEType, Callable[..., str]]],
+        ] = {
             Method.GET: {},
             Method.POST: {},
         }
 
+    @staticmethod
+    def _parse_path(path: str) -> tuple[tuple[str, ...], ...]:
+        return tuple(
+            tuple(BRACKETS.sub("?", part).split("?"))
+            for part in path.rstrip("/").split("/")
+        )
+
     def get(
         self, path: str, mime_type: MIMEType = MIMEType.html
-    ) -> Callable[[Callable[[], str]], None]:
-        def inner(callback: Callable[[], str]) -> None:
-            self.routes[Method.GET][path] = (mime_type, callback)
+    ) -> Callable[[Callable[..., str]], None]:
+        def inner(callback: Callable[..., str]) -> None:
+            self.routes[Method.GET][Nice._parse_path(path)] = (mime_type, callback)
 
         return inner
 
@@ -54,9 +68,42 @@ class Nice:
         self, path: str, mime_type: MIMEType = MIMEType.NONE
     ) -> Callable[[Callable[[Request], str]], None]:
         def inner(callback: Callable[[Request], str]) -> None:
-            self.routes[Method.POST][path] = (mime_type, callback)
+            self.routes[Method.POST][Nice._parse_path(path)] = (mime_type, callback)
 
         return inner
+
+    @staticmethod
+    def _match_one_route(
+        route: tuple[tuple[str, ...], ...], req_route: list[str]
+    ) -> tuple[bool, tuple[str, ...]]:
+        args: tuple[str, ...] = ()
+
+        if len(route) != len(req_route):
+            return False, ()
+
+        for part, req_part in zip(route, req_route):
+            if len(part) == 1 and part[0] == req_part:
+                continue
+
+            elif len(part) == 3:
+                args = args + (req_part,)
+                continue
+
+            return False, ()
+
+        return True, args
+
+    def match_route(
+        self, method: Method, req_route: str
+    ) -> tuple[tuple[tuple[str, ...], ...] | None, tuple[str, ...]]:
+        req_parts = req_route.split("/")
+
+        for route in self.routes[method]:
+            matched, args = Nice._match_one_route(route, req_parts)
+            if matched:
+                return route, args
+
+        return None, ()
 
     def poll(self) -> None:
         if self.poller is None:
@@ -122,11 +169,12 @@ class Nice:
 
             if mask & select.POLLOUT:
                 if request.method == "GET":
-                    if request.path in self.routes[Method.GET]:
-                        mime_type, callback = self.routes[Method.GET][request.path]
+                    matched_route, args = self.match_route(Method.GET, request.path)
+                    if matched_route is not None:
+                        mime_type, callback = self.routes[Method.GET][matched_route]
 
                         try:
-                            body = callback()
+                            body = callback(*args)
                         except Exception as err:
                             response = Response.InternalServerError(
                                 print_exception(err), MIMEType.html
@@ -138,8 +186,9 @@ class Nice:
                         response = self.get_media(request)
 
                 elif request.method == "POST":
-                    if request.path in self.routes[Method.POST]:
-                        mime_type, callback = self.routes[Method.POST][request.path]
+                    matched_route, args = self.match_route(Method.POST, request.path)
+                    if matched_route is not None:
+                        mime_type, callback = self.routes[Method.POST][matched_route]
 
                         try:
                             body = callback(request)

@@ -3,6 +3,7 @@ import json
 
 
 import config
+from udatetime import datetime
 from server import Nice, MIMEType, Request
 from server.utils import connect_wifi
 from template import parse
@@ -19,30 +20,76 @@ else:
 
 @app.get("/")
 def index() -> str:
+    with open("data.json") as file:
+        data = json.load(file)
+
     return parse(
         "html/index.html",
-        temp=dict(current=17.2, day=dict(min=16, max=19), night=dict(min=15, max=17)),
+        temp=dict(current=data["temp"]["current"], **data["config"]["minmax"]),
+        time=data["config"]["days"],
     )
 
 
 @app.get("/api/status", MIMEType.json)
 def api_get_status() -> str:
-    return json.dumps({"active": False})
+    with open("data.json") as file:
+        data = json.load(file)
+
+    return json.dumps({"active": data["active"]})
 
 
 @app.post("/api/status", MIMEType.json)
 def api_post_status(request: Request) -> str:
+    with open("data.json") as file:
+        data = json.load(file)
+
     set_active = request.json().get("active")
+
     if set_active is not None:
-        return json.dumps({"active": set_active})
+        data["active"] = bool(set_active)
+        with open("data.json", "w") as file:
+            json.dump(data, file)
+
+        return json.dumps({"active": bool(set_active)})
 
     else:
         return json.dumps({})
 
 
+@app.get("/api/days", MIMEType.json)
+def api_get_days() -> str:
+    with open("data.json") as file:
+        data = json.load(file)
+
+    return json.dumps(data["config"]["days"])
+
+
+@app.get("/api/days/{day}", MIMEType.json)
+def api_get_day(day: str) -> str:
+    with open("data.json") as file:
+        data = json.load(file)
+
+    return json.dumps(data["config"]["days"][day])
+
+
 @app.get("/api/temp", MIMEType.json)
 def api_get_temp() -> str:
-    return json.dumps({"min": 16, "max": 19, "current": 17.2})
+    with open("data.json") as file:
+        data = json.load(file)
+
+    now = datetime.now()
+    weekday = now.strftime("%A")
+
+    start, end = data["config"]["days"][weekday]
+    if start * 60 > now.hour * 60 + now.minute > end * 60:
+        return json.dumps(
+            data["config"]["minmax"]["day"] | dict(current=data["temp"]["current"])
+        )
+
+    else:
+        return json.dumps(
+            data["config"]["minmax"]["night"] | dict(current=data["temp"]["current"])
+        )
 
 
 @app.post("/api/temp", MIMEType.json)
