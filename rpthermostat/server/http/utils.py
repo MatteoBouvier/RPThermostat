@@ -11,6 +11,8 @@ except ImportError:
     from collections import namedtuple
 
     Version = namedtuple("Version", ("major", "minor"))  # pyright: ignore[reportAssignmentType]
+    BrokenPipeError = OSError
+    ConnectionResetError = OSError
 
 
 def get_version(v: str) -> Version:

@@ -1,7 +1,6 @@
 import io
 import sys
 import time
-import socket
 
 from .http.utils import html_document
 

@@ -1,4 +1,3 @@
-from io import TextIOWrapper
 import re
 
 from udatetime import datetime  # pyright: ignore[reportImplicitRelativeImport, reportUnusedImport]
@@ -6,6 +5,7 @@ from udatetime import datetime  # pyright: ignore[reportImplicitRelativeImport, 
 try:
     from collections.abc import Callable
     from typing import Any
+    from io import TextIOWrapper
 except ImportError:
     pass
 

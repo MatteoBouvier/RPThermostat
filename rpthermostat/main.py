@@ -1,7 +1,6 @@
 # pyright: reportImplicitRelativeImport=false
 import json
 
-
 import config
 from udatetime import datetime
 from server import Nice, MIMEType, Request
