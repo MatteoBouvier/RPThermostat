@@ -61,7 +61,7 @@ def _parse_expression(
     line: str, line_nb: int, variables: dict[str, Any]
 ) -> tuple[str, int]:
     try:
-        return PATTERN_EXPRESSION.sub(_replace(variables), line), line_nb + 1
+        return PATTERN_EXPRESSION.sub(_replace(variables), line) + "\n", line_nb + 1
 
     except NameError as e:
         raise NameError(f"Template formatting failed at line #{line_nb}\n{line}\n{e}")
