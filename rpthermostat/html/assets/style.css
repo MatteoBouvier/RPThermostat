@@ -1,124 +1,104 @@
 :root {
-  --green: #75D572;
-  --blue: #5BC0EB;
-  --orange: #F3A738;
-  --red: #DE3C4B;
-  --light-grey: #DFDFE2;
-  --dark-grey: #232326;
-  --bg: #515151;
+    --green: #75D572;
+    --blue: #5BC0EB;
+    --orange: #F3A738;
+    --red: #DE3C4B;
+    --light-grey: #DFDFE2;
+    --dark-grey: #202428;
+    --grey: #515151;
 }
 
-.mr1 {
-  margin-right: 10vw;
+
+.card {
+    color: var(--light-grey);
+    background-color: var(--dark-grey);
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.ml1 {
-  margin-left: 10vw;
+.card-header {
+    padding: 1rem;
+    background-color: #262B2F;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.mb1 {
-  margin-bottom: 1em;
-}
-
-.mb2 {
-  margin-bottom: 2em;
-}
-
-.mb3 {
-  margin-bottom: 3em;
-}
-
-h2 {
-  margin-bottom: 0;
-}
-
-h3 {
-  margin: 0;
-  font-size: 20px;
-}
-
-.row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
 
 /* ==================== Tables ========================== */
 table {
-  width: 100%;
+    width: 100%;
 }
 
-th, td {
-  padding-right: 1em;
+th,
+td {
+    padding-right: 1em;
 }
 
 /* ==================== Inputs ========================== */
 input[type="number"] {
-  background-color: var(--bg);
-  border: 1px solid var(--light-grey);
-  border-radius: 0.25rem;
-  padding: 0 1.5rem 0 0.75rem;
-  font-size: 1.5rem;
-  line-height: 2.1rem;
-  min-height: 2.25rem;
+    background-color: var(--bg);
+    border: 1px solid var(--light-grey);
+    border-radius: 0.25rem;
+    padding: 0 1.5rem 0 0.75rem;
+    font-size: 1.5rem;
+    line-height: 2.1rem;
+    min-height: 2.25rem;
 }
 
 
- /* =================== Toggle switch - the box around the slider */
+/* =================== Toggle switch - the box around the slider */
 .switch {
-  position: relative;
-  display: inline-block;
-  width: 34px;
-  height: 60px;
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    height: 60px;
 }
 
 /* Hide default HTML checkbox */
 .switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
+    opacity: 0;
+    width: 0;
+    height: 0;
 }
 
 /* The slider */
 .slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: var(--red);
-  -webkit-transition: .4s;
-  transition: .4s;
-  border-radius: 14px;
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--red);
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 14px;
 }
 
 .slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  top: 4px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-  border-radius: 50%;
-  -webkit-transform: translateY(26px);
-  -ms-transform: translateY(26px);
-  transform: translateY(26px);
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    top: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+    -webkit-transform: translateY(26px);
+    -ms-transform: translateY(26px);
+    transform: translateY(26px);
 }
 
-input:checked + .slider {
-  background-color: var(--green);
+input:checked+.slider {
+    background-color: var(--green);
 }
 
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
+input:focus+.slider {
+    box-shadow: 0 0 1px #2196F3;
 }
 
-input:checked + .slider:before {
-  -webkit-transform: translateY(0px);
-  -ms-transform: translateY(0px);
-  transform: translateY(0px);
+input:checked+.slider:before {
+    -webkit-transform: translateY(0px);
+    -ms-transform: translateY(0px);
+    transform: translateY(0px);
 }

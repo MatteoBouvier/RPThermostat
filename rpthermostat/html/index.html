@@ -1,91 +1,277 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <link rel="stylesheet" href="style.css" />
-        <link rel="stylesheet" href="main.css" />
-        <title>Thermostat</title>
-    </head>
-    <body>
-    
-        <div class="row mb3 ml1 mr1">
-          <div><h2>{{ datetime.now().strftime("%A %d %B %Y") }}</h2><h3 style="color: var(--blue);">{{ datetime.now().strftime("%H:%M") }}</h3></div>
-          <div><h2 style="color: var(--orange)">{{ temp["current"] }}°C</h2></div>
-        </div>
-        
-        <div class="row mb1 ml1 mr1">
-          <div class="mr1" style="flex: 2;">
-            <div class="row mb1" style="align-items: center; justify-content: flex-start;">
-              <label class="switch" style="margin-right: 1em;">
-                <input type="checkbox" id="main_switch"/>
-                <span class="slider"></span>
-              </label>
-              <div><h3>Thermostat</h3></div>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="main.css" />
+    <title>Thermostat</title>
+</head>
+
+<body class="m-5">
+    <div class="container-fluid mb-5 text-center">
+        <div class="row justify-content-between">
+            <div class="col-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>{{ datetime.now().strftime("%A %d %B %Y") }}</h2>
+                    </div>
+
+                    <div class="card-body">
+                        <h3 style="color: var(--blue);">{{ datetime.now().strftime("%H:%M") }}</h3>
+                    </div>
+                </div>
             </div>
-            
-            <div id="temp_display"></div>
-          </div>
-          
-          <div style="flex: 1;">
-            <table>
-              <tr>
-                <th></th>
-                <th><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-ease-in-control-point"><title>minimum</title><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 19c8 0 18 -16 18 -16" /><path d="M17 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0z" /><path d="M17 19h-2" /><path d="M12 19h-2" /></svg></th>
-                <th><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-ease-out-control-point"><title>maximum</title><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 21s10 -16 18 -16" /><path d="M7 5a2 2 0 1 1 -4 0a2 2 0 0 1 4 0z" /><path d="M7 5h2" /><path d="M14 5h-2" /></svg></th>
-              </tr>
-              <tr>
-                <td><svg xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-sun"><title>Jour</title><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 19a1 1 0 0 1 .993 .883l.007 .117v1a1 1 0 0 1 -1.993 .117l-.007 -.117v-1a1 1 0 0 1 1 -1z" /><path d="M18.313 16.91l.094 .083l.7 .7a1 1 0 0 1 -1.32 1.497l-.094 -.083l-.7 -.7a1 1 0 0 1 1.218 -1.567l.102 .07z" /><path d="M7.007 16.993a1 1 0 0 1 .083 1.32l-.083 .094l-.7 .7a1 1 0 0 1 -1.497 -1.32l.083 -.094l.7 -.7a1 1 0 0 1 1.414 0z" /><path d="M4 11a1 1 0 0 1 .117 1.993l-.117 .007h-1a1 1 0 0 1 -.117 -1.993l.117 -.007h1z" /><path d="M21 11a1 1 0 0 1 .117 1.993l-.117 .007h-1a1 1 0 0 1 -.117 -1.993l.117 -.007h1z" /><path d="M6.213 4.81l.094 .083l.7 .7a1 1 0 0 1 -1.32 1.497l-.094 -.083l-.7 -.7a1 1 0 0 1 1.217 -1.567l.102 .07z" /><path d="M19.107 4.893a1 1 0 0 1 .083 1.32l-.083 .094l-.7 .7a1 1 0 0 1 -1.497 -1.32l.083 -.094l.7 -.7a1 1 0 0 1 1.414 0z" /><path d="M12 2a1 1 0 0 1 .993 .883l.007 .117v1a1 1 0 0 1 -1.993 .117l-.007 -.117v-1a1 1 0 0 1 1 -1z" /><path d="M12 7a5 5 0 1 1 -4.995 5.217l-.005 -.217l.005 -.217a5 5 0 0 1 4.995 -4.783z" /></svg></td>
-                <td>
-                    <div class="input-group mb-3">
-                                <input id="day_min" type="number" value="{{ temp['day']['min'] }}" min=0 max=30 step="0.5" class="form-control">
-                      <div class="input-group-append">
-                           <span class="input-group-text">°C</span>
-                      </div>
+
+            <div class="col-3"></div>
+
+            <div class="col-4">
+                <div class="card text-bg-secondary">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col">
+                                <h2>Température actuelle</h2>
+                            </div>
+                            <div class="col-4">
+                                <h2 id="current_temp">{{ temp["current"] }}°C</h2>
+                            </div>
+                        </div>
                     </div>
-                </td>
-                <td>
-                    <div class="input-group mb-3">
-                      <input id="day_max" type="number" value="{{ temp['day']['max'] }}" min=0 max=30 step="0.5" class="form-control">
-                      <div class="input-group-append">
-                           <span class="input-group-text">°C</span>
-                      </div>
-                    </div>
-                </td>
-              </tr>
-              <tr>
-                <td><svg xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="currentColor"  class="icon icon-tabler icons-tabler-filled icon-tabler-moon"><title>Nuit</title><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 1.992a10 10 0 1 0 9.236 13.838c.341 -.82 -.476 -1.644 -1.298 -1.31a6.5 6.5 0 0 1 -6.864 -10.787l.077 -.08c.551 -.63 .113 -1.653 -.758 -1.653h-.266l-.068 -.006l-.06 -.002z" /></svg></td>
-                <td>
-                    <div class="input-group mb-3">
-                      <input id="night_min" type="number" value="{{ temp['night']['max'] }}" min=0 max=30 step="0.5" class="form-control">
-                      <div class="input-group-append">
-                           <span class="input-group-text">°C</span>
-                      </div>
-                    </div>
-                </td>
-                <td>
-                    <div class="input-group mb-3">
-                      <input id="night_max" type="number" value="{{ temp['night']['max'] }}" min=0 max=30 step="0.5" class="form-control">
-                      <div class="input-group-append">
-                           <span class="input-group-text">°C</span>
-                      </div>
-                    </div>
-                </td>
-              </tr>
-            </table>
-          </div>
-            
-          <div></div>
+                </div>
+            </div>
         </div>
-        
-        <script type="text/javascript" src="update.js"></script>
-        
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-        
-    </body>
+    </div>
+
+    <div class="container-fluid">
+        <div class="row justify-content-between">
+            <div class="col-7">
+                <div class="card mb-5">
+                    <div class="card-header">
+                        <div class="row align-items-center justify-content-center">
+                            <div class="col-1">
+                                <label class="switch" style="margin-right: 1em;">
+                                    <input type="checkbox" id="main_switch" />
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="col-9">
+                                <h1>Thermostat</h1>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row my-5 px-4" , style="min-height: 50px;">
+                            <div id="temp_display" class="col">
+                                <div class="d-flex justify-content-center">
+                                    <div class="spinner-border" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row align-items-center justify-content-center">
+                            <div class="col-1"></div>
+
+                            <div class="col">
+                                <h2>Historique</h2>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row my-5 px-4" , style="min-height: 50px;">
+                            <div id="temp_history" class="col">
+                                <div class="d-flex justify-content-center">
+                                    <div class="spinner-border" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row justify-content-center">
+                            <div class="col-1"></div>
+
+                            <div class="col">
+                                <h2>Réglages</h2>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row">
+                            <h3>Température</h3>
+                        </div>
+
+                        <div class="pe-5 mb-5">
+                            <div class="row mt-1 mb-2 text-center">
+                                <div class="col-2"></div>
+                                <div class="col-5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="2.5rem" height="2.5rem"
+                                        fill="currentColor" class="bi bi-thermometer-snow" viewBox="0 0 16 16">
+                                        <path
+                                            d="M5 12.5a1.5 1.5 0 1 1-2-1.415V9.5a.5.5 0 0 1 1 0v1.585A1.5 1.5 0 0 1 5 12.5" />
+                                        <path
+                                            d="M1 2.5a2.5 2.5 0 0 1 5 0v7.55a3.5 3.5 0 1 1-5 0zM3.5 1A1.5 1.5 0 0 0 2 2.5v7.987l-.167.15a2.5 2.5 0 1 0 3.333 0L5 10.486V2.5A1.5 1.5 0 0 0 3.5 1m5 1a.5.5 0 0 1 .5.5v1.293l.646-.647a.5.5 0 0 1 .708.708L9 5.207v1.927l1.669-.963.495-1.85a.5.5 0 1 1 .966.26l-.237.882 1.12-.646a.5.5 0 0 1 .5.866l-1.12.646.884.237a.5.5 0 1 1-.26.966l-1.848-.495L9.5 8l1.669.963 1.849-.495a.5.5 0 1 1 .258.966l-.883.237 1.12.646a.5.5 0 0 1-.5.866l-1.12-.646.237.883a.5.5 0 1 1-.966.258L10.67 9.83 9 8.866v1.927l1.354 1.353a.5.5 0 0 1-.708.708L9 12.207V13.5a.5.5 0 0 1-1 0v-11a.5.5 0 0 1 .5-.5" />
+                                    </svg>
+
+                                </div>
+                                <div class="col-5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="2.5rem" height="2.5rem"
+                                        fill="currentColor" class="bi bi-thermometer-sun" viewBox="0 0 16 16">
+                                        <path
+                                            d="M5 12.5a1.5 1.5 0 1 1-2-1.415V2.5a.5.5 0 0 1 1 0v8.585A1.5 1.5 0 0 1 5 12.5" />
+                                        <path
+                                            d="M1 2.5a2.5 2.5 0 0 1 5 0v7.55a3.5 3.5 0 1 1-5 0zM3.5 1A1.5 1.5 0 0 0 2 2.5v7.987l-.167.15a2.5 2.5 0 1 0 3.333 0L5 10.486V2.5A1.5 1.5 0 0 0 3.5 1m5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5m4.243 1.757a.5.5 0 0 1 0 .707l-.707.708a.5.5 0 1 1-.708-.708l.708-.707a.5.5 0 0 1 .707 0M8 5.5a.5.5 0 0 1 .5-.5 3 3 0 1 1 0 6 .5.5 0 0 1 0-1 2 2 0 0 0 0-4 .5.5 0 0 1-.5-.5M12.5 8a.5.5 0 0 1 .5-.5h1a.5.5 0 1 1 0 1h-1a.5.5 0 0 1-.5-.5m-1.172 2.828a.5.5 0 0 1 .708 0l.707.708a.5.5 0 0 1-.707.707l-.708-.707a.5.5 0 0 1 0-.708M8.5 12a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5" />
+                                    </svg>
+
+                                </div>
+                            </div>
+                            <div class="row mb-2 align-items-center">
+                                <div class="col-2 text-end">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="2.5rem" height="2.5rem"
+                                        fill="currentColor" class="bi bi-sun-fill" viewBox="0 0 16 16">
+                                        <path
+                                            d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0m0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13m8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5M3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8m10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0m-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0m9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707M4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708" />
+                                    </svg>
+                                </div>
+                                <div class="col-5">
+                                    <div class="input-group">
+                                        <input id="day_min" type="number" value="{{ temp['day']['min'] }}" min=0 max=30
+                                            step="0.5" class="form-control">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">°C</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-5">
+                                    <div class="input-group">
+                                        <input id="day_max" type="number" value="{{ temp['day']['max'] }}" min=0 max=30
+                                            step="0.5" class="form-control">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">°C</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-2 align-items-center">
+                                <div class="col-2 text-end">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="2.5rem" height="2.5rem"
+                                        fill="currentColor" class="bi bi-moon-stars-fill" viewBox="0 0 16 16">
+                                        <path
+                                            d="M6 .278a.77.77 0 0 1 .08.858 7.2 7.2 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277q.792-.001 1.533-.16a.79.79 0 0 1 .81.316.73.73 0 0 1-.031.893A8.35 8.35 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.75.75 0 0 1 6 .278" />
+                                        <path
+                                            d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.73 1.73 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.73 1.73 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.73 1.73 0 0 0 1.097-1.097zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z" />
+                                    </svg>
+                                </div>
+                                <div class="col-5">
+                                    <div class="input-group">
+                                        <input id="night_min" type="number" value="{{ temp['night']['min'] }}" min=0
+                                            max=30 step="0.5" class="form-control">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">°C</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-5">
+                                    <div class="input-group">
+                                        <input id="night_max" type="number" value="{{ temp['night']['max'] }}" min=0
+                                            max=30 step="0.5" class="form-control">
+                                        <div class="input-group-append">
+                                            <span class="input-group-text">°C</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="row mt-4">
+                            <h2>Horaires</h2>
+                        </div>
+
+                        {% for day in weekdays %}
+                        <div class="row text-start mt-4">
+                            <div class="row mb-3 justify-content-evenly">
+                                <div class="col-4">
+                                    {{ day }}
+                                </div>
+
+                                <div class="col-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="2.5rem" height="2.5rem"
+                                        fill="currentColor" class="bi bi-sunrise-fill" viewBox="0 0 16 16">
+                                        <path
+                                            d="M7.646 1.146a.5.5 0 0 1 .708 0l1.5 1.5a.5.5 0 0 1-.708.708L8.5 2.707V4.5a.5.5 0 0 1-1 0V2.707l-.646.647a.5.5 0 1 1-.708-.708zM2.343 4.343a.5.5 0 0 1 .707 0l1.414 1.414a.5.5 0 0 1-.707.707L2.343 5.05a.5.5 0 0 1 0-.707m11.314 0a.5.5 0 0 1 0 .707l-1.414 1.414a.5.5 0 1 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0M11.709 11.5a4 4 0 1 0-7.418 0H.5a.5.5 0 0 0 0 1h15a.5.5 0 0 0 0-1h-3.79zM0 10a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2A.5.5 0 0 1 0 10m13 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5" />
+                                    </svg>
+                                </div>
+
+                                <div class="col-3 sun_rise_time" id="srt_{{ day }}">
+                                    {{ int(time[day][0]) }}:{{ "30" if time[day][0] % 1 else "00" }}
+                                </div>
+
+                                <div class="col-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="2.5rem" height="2.5rem"
+                                        fill="currentColor" class="bi bi-sunset" viewBox="0 0 16 16">
+                                        <path
+                                            d="M7.646 4.854a.5.5 0 0 0 .708 0l1.5-1.5a.5.5 0 0 0-.708-.708l-.646.647V1.5a.5.5 0 0 0-1 0v1.793l-.646-.647a.5.5 0 1 0-.708.708zm-5.303-.51a.5.5 0 0 1 .707 0l1.414 1.413a.5.5 0 0 1-.707.707L2.343 5.05a.5.5 0 0 1 0-.707zm11.314 0a.5.5 0 0 1 0 .706l-1.414 1.414a.5.5 0 1 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zM8 7a3 3 0 0 1 2.599 4.5H5.4A3 3 0 0 1 8 7m3.71 4.5a4 4 0 1 0-7.418 0H.499a.5.5 0 0 0 0 1h15a.5.5 0 0 0 0-1h-3.79zM0 10a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2A.5.5 0 0 1 0 10m13 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5" />
+                                    </svg>
+                                </div>
+
+                                <div class="col-3 sun_set_time" id="sst_{{ day }}">
+                                    {{ int(time[day][1]) }}:{{ "30" if time[day][1] % 1 else "00" }}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="sliders_control">
+                                <input type="range" class="form-range slider_sun_rise" min="0" max="24" step="0.5"
+                                    value="{{ time[day][0] }}" id="ssr_{{ day }}">
+                                <input type="range" class="form-range slider_sun_set" min="0" max="24" step="0.5"
+                                    value="{{ time[day][1] }}" id="sss_{{ day }}">
+                            </div>
+                        </div>
+
+                        <hr>
+                        {% endfor %}
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+    <script type="module" src="update.js"></script>
+</body>
+
 </html>

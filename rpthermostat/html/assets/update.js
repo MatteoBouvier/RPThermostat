@@ -1,38 +1,5 @@
-function build_temp_display(temp) {
-    const padding = (temp.max - temp.min) / 2;
-    const before = temp.current - temp.min;
-    const after = temp.max - temp.current;
-
-    const total = 2 * padding + before + after;
-
-    const dist = (temp.max - temp.current) < (temp.current - temp.min);
-    const left = dist ? `${temp.current}°C ` : "";
-    const right = dist ? "" : ` ${temp.current}°C`;
-
-    document.getElementById("temp_display").innerHTML =
-        `<div class="row" style="height: 2.1em; background-color:#515151; align-items: center">
-        <div id="temp_graph_before" style="position: relative; height: 1.5em; background-color:rgba(117, 213, 114, 0.5); flex:${
-            padding / total
-        };"></div>
-        <div id="temp_graph_current" style="position: relative; height: 1.5em; padding-right: 0.5em; background-color:var(--green); color:var(--dark-grey); text-align: right; flex:${
-            before / total
-        };">${left}</div>
-        <div id="temp_graph_current2" style="position: relative; height: 1.5em; padding-left: 0.5em; background-color:var(--dark-grey); color:var(--green); flex:${
-            after / total
-        };">${right}</div>
-        <div id="temp_graph_after" style="position: relative; height: 1.5em; flex:${
-            padding / total
-        };"></div>    
-    </div>
-    <div class="row">
-        <div style="flex:${padding / total};"></div>
-        <div style="flex:${
-            before / total
-        }; margin-left: -1em;">${temp.min}°C</div>
-        <div style="flex:${after / total};"></div>
-        <div style="flex:${padding / total};">${temp.max}°C</div>    
-    </div>`;
-}
+import { control_sliders, fillSlider } from "./slider.js";
+import { build_temp_display } from "./temp_display.js";
 
 /**
  * @param {string} url
@@ -49,7 +16,7 @@ function post(url, body, event, callback) {
             },
         })
             .then((response) => response.json())
-            .then((data) => callback(data));
+            .then((data) => callback(data, event));
     } catch (err) {
         event.preventDefault();
         console.log(err);
@@ -64,6 +31,10 @@ const input_day_min = document.getElementById("day_min");
 const input_day_max = document.getElementById("day_max");
 const input_night_min = document.getElementById("night_min");
 const input_night_max = document.getElementById("night_max");
+const slider_sun_rise = [...document.querySelectorAll(".slider_sun_rise")];
+const slider_sun_set = [...document.querySelectorAll(".slider_sun_set")];
+const sun_rise_time = [...document.querySelectorAll(".sun_rise_time")];
+const sun_set_time = [...document.querySelectorAll(".sun_set_time")];
 
 // === Requests ===============================================================
 let request = new Request(SERVER_URL + "/api/status");
@@ -80,6 +51,29 @@ fetch(request)
     .then((response) => response.json())
     .then((data) => {
         build_temp_display(data);
+        document.getElementById("current_temp").style.color =
+            data.current < data.min
+                ? "var(--blue)"
+                : data.current > data.max
+                ? "var(--red)"
+                : "var(--green)";
+    });
+
+request = new Request(SERVER_URL + "/api/days");
+
+fetch(request)
+    .then((response) => response.json())
+    .then((data) => {
+        document.querySelectorAll(".slider_sun_rise").forEach((s) => {
+            const day = s.id.split("_")[1];
+            s.value = data[day][0];
+        });
+
+        document.querySelectorAll(".slider_sun_set").forEach((s) => {
+            const day = s.id.split("_")[1];
+            s.value = data[day][1];
+            fillSlider(document.getElementById("ssr_" + day), s);
+        });
     });
 
 // === Events =================================================================
@@ -90,8 +84,8 @@ main_switch.addEventListener("change", (event) => {
             active: event.currentTarget.checked,
         }),
         event,
-        (data) => {
-            if (data[active] != event.currentTarget.checked) {
+        (data, event) => {
+            if (data.active != event.currentTarget.checked) {
                 event.preventDefault();
             }
         },
@@ -107,7 +101,7 @@ input_day_min.addEventListener("change", (event) => {
             SERVER_URL + "/api/temp",
             JSON.stringify({ day: { min: event.currentTarget.value } }),
             event,
-            (data) => {
+            (data, event) => {
                 if (data.day.min == event.currentTarget.checked) {
                     event.currentTarget.classList.add("is-valid");
                 }
@@ -125,7 +119,7 @@ input_night_min.addEventListener("change", (event) => {
             SERVER_URL + "/api/temp",
             JSON.stringify({ night: { min: event.currentTarget.value } }),
             event,
-            (data) => {
+            (data, event) => {
                 if (data.night.min == event.currentTarget.checked) {
                     event.currentTarget.classList.add("is-valid");
                 }
@@ -143,7 +137,7 @@ input_day_max.addEventListener("change", (event) => {
             SERVER_URL + "/api/temp",
             JSON.stringify({ day: { max: event.currentTarget.value } }),
             event,
-            (data) => {
+            (data, event) => {
                 if (data.day.max == event.currentTarget.checked) {
                     event.currentTarget.classList.add("is-valid");
                 }
@@ -161,11 +155,35 @@ input_night_max.addEventListener("change", (event) => {
             SERVER_URL + "/api/temp",
             JSON.stringify({ night: { max: event.currentTarget.value } }),
             event,
-            (data) => {
+            (data, event) => {
                 if (data.night.min == event.currentTarget.checked) {
                     event.currentTarget.classList.add("is-valid");
                 }
             },
         );
     }
+});
+
+slider_sun_rise.map((ssr, i) => {
+    const sss = slider_sun_set[i];
+
+    fillSlider(
+        ssr,
+        sss,
+    );
+
+    ssr.oninput = () =>
+        control_sliders(
+            ssr,
+            sss,
+            sun_rise_time[i],
+            sun_set_time[i],
+        );
+    sss.oninput = () =>
+        control_sliders(
+            ssr,
+            sss,
+            sun_rise_time[i],
+            sun_set_time[i],
+        );
 });

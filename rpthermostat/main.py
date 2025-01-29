@@ -27,6 +27,15 @@ def index() -> str:
         "html/index.html",
         temp=dict(current=data["temp"]["current"], **data["config"]["minmax"]),
         time=data["config"]["days"],
+        weekdays=[
+            "Lundi",
+            "Mardi",
+            "Mercredi",
+            "Jeudi",
+            "Vendredi",
+            "Samedi",
+            "Dimanche",
+        ],
     )
 
 

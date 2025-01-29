@@ -4,20 +4,19 @@ body {
     line-height: 1.4;
     font-size: 22px;
     background-color: var(--dark-grey);
-    padding: 4rem;
+    padding: 4rem 10rem;
 }
 
 input[type="number"] {
     color: var(--light-grey);
-    font-family: Georgia;
-    line-height: 1.4;
-    font-size: 22px;
 }
 
 #temp_graph_before::before,
+#temp_graph_before2::before,
 #temp_graph_current::before,
 #temp_graph_current2::before,
-#temp_graph_after::before {
+#temp_graph_after::before,
+#temp_graph_after2::before {
     content: "";
     display: block;
     position: absolute;
@@ -27,7 +26,8 @@ input[type="number"] {
     height: 4px;
 }
 
-#temp_graph_before::before {
+#temp_graph_before::before,
+#temp_graph_before2::before {
     background-color: var(--blue);
 }
 
@@ -36,6 +36,39 @@ input[type="number"] {
     background-color: var(--green);
 }
 
-#temp_graph_after::before {
+#temp_graph_after::before,
+#temp_graph_after2::before {
     background-color: var(--red);
+}
+
+.sliders_control {
+    position: relative;
+    min-height: 25px;
+}
+
+.sliders_control input[type="range"] {
+    height: 4px;
+    width: calc(100% - 2.25rem);
+    position: absolute;
+    pointer-events: none;
+}
+
+
+.sliders_control input[type=range]::-moz-range-thumb {
+    pointer-events: all;
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+
+.slider_sun_rise {
+    z-index: 1;
+}
+
+.slider_sun_rise::-moz-range-track {
+    height: 0;
+}
+
+.slider_sun_set::-moz-range-track {
+    height: 0;
 }
