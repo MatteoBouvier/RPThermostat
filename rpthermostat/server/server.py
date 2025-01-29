@@ -207,6 +207,28 @@ class Nice:
 
                 response.send(conn)
 
+    def _get_asset(
+        self, requested_file_name: str, sub_t: str, extension: str
+    ) -> str | None:
+        sub_t = extension if sub_t == "*" else sub_t
+
+        if requested_file_name in os.listdir(self.source_folder + "/assets"):
+            return Marker.FILE + self.source_folder + "/assets/" + requested_file_name
+
+        try:
+            if requested_file_name in os.listdir(
+                self.source_folder + "/assets/" + sub_t
+            ):
+                return (
+                    Marker.FILE
+                    + f"{self.source_folder}/assets/{sub_t}/{requested_file_name}"
+                )
+
+        except FileNotFoundError:
+            pass
+
+        return None
+
     def get_media(self, request: Request) -> Response:
         requested_file_name = request.path[1:]
         extension = request.path.split(".")[1]
@@ -216,12 +238,13 @@ class Nice:
             return Response.empty(Code.e415)
 
         for accepted_type in get_media_types(request.headers.get("Accept", "*/*")):
-            if MIMEType.is_asset(accepted_type) and requested_file_name in os.listdir(
-                self.source_folder + "/assets"
-            ):
-                body = (
-                    Marker.FILE + self.source_folder + "/assets/" + requested_file_name
-                )
+            if MIMEType.is_asset(accepted_type):
+                sub_t = accepted_type.split("/")[1]
+                maybe_body = self._get_asset(requested_file_name, sub_t, extension)
+                if maybe_body is None:
+                    continue
+
+                body = maybe_body
 
             elif requested_file_name in os.listdir(self.source_folder):
                 body = Marker.FILE + self.source_folder + "/" + requested_file_name
