@@ -17,6 +17,24 @@ function post(url, body) {
         .then((response) => response.json());
 }
 
+function update_temp_display() {
+    request = new Request(SERVER_URL + "/api/temp");
+
+    fetch(request)
+        .then((response) => response.json())
+        .then((data) => {
+            build_temp_display(data);
+
+            const current_temp = document.getElementById("current_temp");
+            current_temp.innerText = data.current + "°C";
+            current_temp.style.color = data.current < data.min
+                ? "var(--blue)"
+                : data.current > data.max
+                ? "var(--red)"
+                : "var(--green)";
+        });
+}
+
 const SERVER_URL = globalThis.location.origin;
 
 // === Elements ===============================================================
@@ -39,19 +57,7 @@ fetch(request)
         main_switch.checked = data.active;
     });
 
-request = new Request(SERVER_URL + "/api/temp");
-
-fetch(request)
-    .then((response) => response.json())
-    .then((data) => {
-        build_temp_display(data);
-        document.getElementById("current_temp").style.color =
-            data.current < data.min
-                ? "var(--blue)"
-                : data.current > data.max
-                ? "var(--red)"
-                : "var(--green)";
-    });
+update_temp_display();
 
 request = new Request(SERVER_URL + "/api/days");
 
@@ -68,6 +74,22 @@ fetch(request)
             s.value = data[day][1];
             fillSlider(document.getElementById("ssr_" + day), s);
         });
+    });
+
+request = new Request(SERVER_URL + "/api/temp/day");
+fetch(request)
+    .then((response) => response.json())
+    .then((data) => {
+        input_day_min.value = data.min;
+        input_day_max.value = data.max;
+    });
+
+request = new Request(SERVER_URL + "/api/temp/night");
+fetch(request)
+    .then((response) => response.json())
+    .then((data) => {
+        input_night_min.value = data.min;
+        input_night_max.value = data.max;
     });
 
 // === Events =================================================================
@@ -91,10 +113,13 @@ input_day_min.addEventListener("change", (event) => {
         input_day_min.classList.remove("is-invalid");
         post(
             SERVER_URL + "/api/temp",
-            JSON.stringify({ day: { min: event.currentTarget.value } }),
+            JSON.stringify({
+                minmax: { day: { min: event.currentTarget.value } },
+            }),
         ).then((data) => {
-            if (data.day.min == input_day_min.checked) {
+            if (data.minmax.day.min == input_day_min.value) {
                 input_day_min.classList.add("is-valid");
+                update_temp_display();
             }
         });
     }
@@ -107,10 +132,13 @@ input_night_min.addEventListener("change", (event) => {
         input_night_min.classList.remove("is-invalid");
         post(
             SERVER_URL + "/api/temp",
-            JSON.stringify({ night: { min: event.currentTarget.value } }),
+            JSON.stringify({
+                minmax: { night: { min: event.currentTarget.value } },
+            }),
         ).then((data) => {
-            if (data.night.min == input_night_min.checked) {
+            if (data.minmax.night.min == input_night_min.value) {
                 input_night_min.classList.add("is-valid");
+                update_temp_display();
             }
         });
     }
@@ -123,10 +151,13 @@ input_day_max.addEventListener("change", (event) => {
         input_day_max.classList.remove("is-invalid");
         post(
             SERVER_URL + "/api/temp",
-            JSON.stringify({ day: { max: event.currentTarget.value } }),
+            JSON.stringify({
+                minmax: { day: { max: event.currentTarget.value } },
+            }),
         ).then((data) => {
-            if (data.day.max == input_day_max.checked) {
+            if (data.minmax.day.max == input_day_max.value) {
                 input_day_max.classList.add("is-valid");
+                update_temp_display();
             }
         });
     }
@@ -139,10 +170,13 @@ input_night_max.addEventListener("change", (event) => {
         input_night_max.classList.remove("is-invalid");
         post(
             SERVER_URL + "/api/temp",
-            JSON.stringify({ night: { max: event.currentTarget.value } }),
+            JSON.stringify({
+                minmax: { night: { max: event.currentTarget.value } },
+            }),
         ).then((data) => {
-            if (data.night.min == input_night_max.checked) {
+            if (data.minmax.night.max == input_night_max.value) {
                 input_night_max.classList.add("is-valid");
+                update_temp_display();
             }
         });
     }
@@ -150,11 +184,28 @@ input_night_max.addEventListener("change", (event) => {
 
 slider_sun_rise.map((ssr, i) => {
     const sss = slider_sun_set[i];
+    const day = ssr.id.split("_")[1];
 
     fillSlider(
         ssr,
         sss,
     );
+
+    const callback = function () {
+        post(
+            SERVER_URL + "/api/temp",
+            JSON.stringify({
+                days: {
+                    [day]: [
+                        ssr.value,
+                        sss.value,
+                    ],
+                },
+            }),
+        ).then((_) => {
+            update_temp_display();
+        });
+    };
 
     ssr.oninput = () =>
         control_sliders(
@@ -162,6 +213,7 @@ slider_sun_rise.map((ssr, i) => {
             sss,
             sun_rise_time[i],
             sun_set_time[i],
+            callback,
         );
     sss.oninput = () =>
         control_sliders(
@@ -169,5 +221,6 @@ slider_sun_rise.map((ssr, i) => {
             sss,
             sun_rise_time[i],
             sun_set_time[i],
+            callback,
         );
 });

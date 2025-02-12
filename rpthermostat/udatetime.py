@@ -45,7 +45,7 @@ class datetime:
                 "Dimanche",
             ][self.weekday],
             "w": str(self.weekday),
-            "d": f"{self.day:0>2}",
+            "d": "{:0>2d}".format(self.day),
             "B": [
                 "Janvier",
                 "Février",
@@ -60,12 +60,11 @@ class datetime:
                 "Novembre",
                 "Décembre",
             ][self.month - 1],
-            "m": f"{self.month:0>2}",
+            "m": "{:0>2d}".format(self.month),
             "Y": str(self.year),
-            "H": f"{self.hour:0>2}",
-            "M": f"{self.minute:0>2}",
+            "H": "{:0>2d}".format(self.hour),
+            "M": "{:0>2d}".format(self.minute),
         }[match.group(1)]
 
     def strftime(self, form: str) -> str:
         return PATTERN.sub(self._format_one, form)
-

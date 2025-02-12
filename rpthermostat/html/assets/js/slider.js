@@ -24,7 +24,7 @@ function getParsed(rise, set) {
     return [rise_v, set_v];
 }
 
-export function control_sliders(rise, set, rise_time, set_time) {
+export function control_sliders(rise, set, rise_time, set_time, callback) {
     const [rise_v, set_v] = getParsed(rise, set);
     fillSlider(rise, set);
 
@@ -32,12 +32,14 @@ export function control_sliders(rise, set, rise_time, set_time) {
         rise.value = set_v;
     } else if (set_v < rise_v) {
         set.value = rise_v;
-    }
+    } else {
+        rise_time.innerText = `${parseInt(rise_v, 10)}:${
+            rise_v % 1 == 0 ? "00" : "30"
+        }`;
+        set_time.innerText = `${parseInt(set_v, 10)}:${
+            set_v % 1 == 0 ? "00" : "30"
+        }`;
 
-    rise_time.innerText = `${parseInt(rise_v, 10)}:${
-        rise_v % 1 == 0 ? "00" : "30"
-    }`;
-    set_time.innerText = `${parseInt(set_v, 10)}:${
-        set_v % 1 == 0 ? "00" : "30"
-    }`;
+        callback();
+    }
 }

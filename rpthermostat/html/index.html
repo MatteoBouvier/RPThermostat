@@ -19,11 +19,11 @@
             <div class="col-3">
                 <div class="card">
                     <div class="card-header">
-                        <h2>{{ datetime.now().strftime("%A %d %B %Y") }}</h2>
+                        <h2>{{ now.strftime("%A %d %B %Y") }}</h2>
                     </div>
 
                     <div class="card-body">
-                        <h3 style="color: var(--blue);">{{ datetime.now().strftime("%H:%M") }}</h3>
+                        <h3 style="color: var(--blue);">{{ now.strftime("%H:%M") }}</h3>
                     </div>
                 </div>
             </div>
@@ -271,6 +271,8 @@
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 
+    <script type="module" src="temp_display.js"></script>
+    <script type="module" src="slider.js"></script>
     <script type="module" src="update.js"></script>
 </body>
 

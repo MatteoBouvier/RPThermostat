@@ -1,2 +1,3 @@
 __pycache__
-config.py
+_secrets.py
+rpthermostat/miniwebserver
