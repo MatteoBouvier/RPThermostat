@@ -13,10 +13,10 @@
     <title>Thermostat</title>
 </head>
 
-<body class="m-5">
+<body class="mx-1 my-5 m-md-5">
     <div class="container-fluid mb-5 text-center">
         <div class="row justify-content-between">
-            <div class="col-3">
+            <div class="mb-3 col-12 col-md-3">
                 <div class="card">
                     <div class="card-header">
                         <h2>{{ now.strftime("%A %d %B %Y") }}</h2>
@@ -28,9 +28,7 @@
                 </div>
             </div>
 
-            <div class="col-3"></div>
-
-            <div class="col-4">
+            <div class="col-12 col-md-4">
                 <div class="card text-bg-secondary">
                     <div class="card-body">
                         <div class="row">
@@ -49,7 +47,7 @@
 
     <div class="container-fluid">
         <div class="row justify-content-between">
-            <div class="col-7">
+            <div class="col-12 col-md-7">
                 <div class="card mb-5">
                     <div class="card-header">
                         <div class="row align-items-center justify-content-center">
@@ -80,7 +78,7 @@
                     </div>
                 </div>
 
-                <div class="card">
+                <div class="card mb-3">
                     <div class="card-header">
                         <div class="row align-items-center justify-content-center">
                             <div class="col-1"></div>
@@ -106,7 +104,7 @@
                 </div>
             </div>
 
-            <div class="col-4">
+            <div class="col-12 col-md-4">
                 <div class="card">
                     <div class="card-header">
                         <div class="row justify-content-center">
@@ -214,11 +212,11 @@
                         {% for day in weekdays %}
                         <div class="row text-start mt-4">
                             <div class="row mb-3 justify-content-evenly">
-                                <div class="col-4">
+                                <div class="col-3">
                                     {{ day }}
                                 </div>
 
-                                <div class="col-1">
+                                <div class="col-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="2.5rem" height="2.5rem"
                                         fill="currentColor" class="bi bi-sunrise-fill" viewBox="0 0 16 16">
                                         <path
@@ -226,11 +224,11 @@
                                     </svg>
                                 </div>
 
-                                <div class="col-3 sun_rise_time" id="srt_{{ day }}">
+                                <div class="col sun_rise_time" id="srt_{{ day }}">
                                     {{ int(time[day][0]) }}:{{ "30" if time[day][0] % 1 else "00" }}
                                 </div>
 
-                                <div class="col-1">
+                                <div class="col-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="2.5rem" height="2.5rem"
                                         fill="currentColor" class="bi bi-sunset" viewBox="0 0 16 16">
                                         <path
@@ -238,7 +236,7 @@
                                     </svg>
                                 </div>
 
-                                <div class="col-3 sun_set_time" id="sst_{{ day }}">
+                                <div class="col sun_set_time" id="sst_{{ day }}">
                                     {{ int(time[day][1]) }}:{{ "30" if time[day][1] % 1 else "00" }}
                                 </div>
 
